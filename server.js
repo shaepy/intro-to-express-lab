@@ -1,21 +1,17 @@
 const express = require('express')
-const morgan = require('morgan')
 const app = express()
 const port = 3000
 
-app.use(morgan('dev'))
 app.listen(port, () => {console.log(`App listening on port ${port}`)})
 
 app.get('/', (req, res) => {res.send('Hello World!')})
 
 /* ---------------------- Exercise 1 ---------------------- */
-
 app.get('/greetings/:username', (req, res) => {
     res.send(`Hello, my name is Inigo Montoya. You killed my father, ${req.params.username}. Prepare to die.`)
 })
 
 /* ---------------------- Exercise 2 ---------------------- */
-
 app.get('/roll/:number', (req, res) => {
     const num = req.params.number
     if (isNaN(num)) res.send('You must specify a number.')
@@ -23,7 +19,6 @@ app.get('/roll/:number', (req, res) => {
 })
 
 /* ---------------------- Exercise 3 ---------------------- */
-
 const collectibles = [
     { name: 'shiny ball', price: 5.95 },
     { name: 'autographed picture of a dog', price: 10 },
@@ -38,10 +33,6 @@ app.get('/collectibles/:idx', (req, res) => {
 })
 
 /* ---------------------- Exercise 4 ---------------------- */
-    // a function that takes 3 values, shoetype, minprice, and maxprice
-    // sends back an array based on whether those were true or not
-    // send the array with a check
-
 const shoes = [
     { name: "Birkenstocks", price: 50, type: "sandal" },
     { name: "Air Jordans", price: 500, type: "sneaker" },
@@ -57,32 +48,24 @@ app.get('/shoes', (req, res) => {
     const minPrice = req.query["min-price"] ? Number(req.query["min-price"]) : null
     const maxPrice = req.query["max-price"] ? Number(req.query["max-price"]) : null
 
-    if (!shoeType && !minPrice && !maxPrice) {
-        res.send(shoes)
-        return
-    }
-
-    let shoesByType, aboveMinPrice, belowMaxPrice, finalList
     let queryNullCount = 0
     const queryArray = [shoeType, minPrice, maxPrice]
-    queryArray.forEach(q => {if (!q) queryNullCount += 1})
+    queryArray.forEach(q => {if (!q) queryNullCount++})
 
-    if (queryNullCount < 2) {
+    if (queryNullCount > 2) {
+        res.send(shoes)
+    } else if (queryNullCount < 2) {
+        let filteredList
         if (shoeType && minPrice && maxPrice) {
-            shoesByType = shoes.filter(shoe => shoe.type === shoeType)
-            aboveMinPrice = shoesByType.filter(shoe => shoe.price >= minPrice)
-            finalList = aboveMinPrice.filter(shoe => shoe.price <= maxPrice)
+            filteredList = shoes.filter(shoe => shoe.type === shoeType && shoe.price >= minPrice && shoe.price <= maxPrice)
         } else if (shoeType && minPrice && !maxPrice) {
-            shoesByType = shoes.filter(shoe => shoe.type === shoeType)
-            finalList = shoesByType.filter(shoe => shoe.price >= minPrice)
+            filteredList = shoes.filter(shoe => shoe.type === shoeType && shoe.price >= minPrice)
         } else if (shoeType && !minPrice && maxPrice) {
-            shoesByType = shoes.filter(shoe => shoe.type === shoeType)
-            finalList = shoesByType.filter(shoe => shoe.price <= maxPrice)
+            filteredList = shoes.filter(shoe => shoe.type === shoeType && shoe.price <= maxPrice)
         } else if (!shoeType && minPrice && maxPrice) {
-            aboveMinPrice = shoes.filter(shoe => shoe.price >= minPrice)
-            finalList = aboveMinPrice.filter(shoe => shoe.price <= maxPrice)
+            filteredList = shoes.filter(shoe => shoe.price >= minPrice && shoe.price <= maxPrice)
         }
-        finalList.length > 0 ? res.send(finalList) : res.send('Sorry, no matches found.')
+        filteredList.length > 0 ? res.send(filteredList) : res.send('Sorry, no matches found.')
     } else {
         const queryFilter = queryArray.find(q => q !== null)
         switch (queryFilter) {
