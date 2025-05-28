@@ -45,13 +45,14 @@ const shoes = [
 
 app.get('/shoes', (req, res) => {
     let results = shoes
-    const shoeType = req.query.type ? req.query.type : null
-    const minPrice = req.query["min-price"] ? Number(req.query["min-price"]) : null
-    const maxPrice = req.query["max-price"] ? Number(req.query["max-price"]) : null
+    const shoeType = req.query.type
+    const minPrice = Number(req.query["min-price"])
+    const maxPrice = Number(req.query["max-price"])
 
     if (minPrice) results = results.filter(shoe => shoe.price >= minPrice)
     if (maxPrice) results = results.filter(shoe => shoe.price <= maxPrice)
     if (shoeType) results = results.filter(shoe => shoe.type === shoeType)
 
-    results.length > 0 ? res.send(results) : res.send('Sorry, no matches found.')
+    if (results.length < 1 || maxPrice === 0) res.send('Sorry, no matches found.')
+    else res.send(results)
 })
