@@ -44,40 +44,14 @@ const shoes = [
 ]
 
 app.get('/shoes', (req, res) => {
+    let results = shoes
     const shoeType = req.query.type ? req.query.type : null
     const minPrice = req.query["min-price"] ? Number(req.query["min-price"]) : null
     const maxPrice = req.query["max-price"] ? Number(req.query["max-price"]) : null
 
-    let queryNullCount = 0
-    const queryArray = [shoeType, minPrice, maxPrice]
-    queryArray.forEach(q => {if (!q) queryNullCount++})
+    if (minPrice) {results = shoes.filter(shoe => shoe.price >= minPrice)}
+    if (maxPrice) {results = shoes.filter(shoe => shoe.price <= maxPrice)}
+    if (shoeType) {results = shoes.filter(shoe => shoe.type === shoeType)}
 
-    if (queryNullCount > 2) {
-        res.send(shoes)
-    } else if (queryNullCount < 2) {
-        let filteredList
-        if (shoeType && minPrice && maxPrice) {
-            filteredList = shoes.filter(shoe => shoe.type === shoeType && shoe.price >= minPrice && shoe.price <= maxPrice)
-        } else if (shoeType && minPrice && !maxPrice) {
-            filteredList = shoes.filter(shoe => shoe.type === shoeType && shoe.price >= minPrice)
-        } else if (shoeType && !minPrice && maxPrice) {
-            filteredList = shoes.filter(shoe => shoe.type === shoeType && shoe.price <= maxPrice)
-        } else if (!shoeType && minPrice && maxPrice) {
-            filteredList = shoes.filter(shoe => shoe.price >= minPrice && shoe.price <= maxPrice)
-        }
-        filteredList.length > 0 ? res.send(filteredList) : res.send('Sorry, no matches found.')
-    } else {
-        const queryFilter = queryArray.find(q => q !== null)
-        switch (queryFilter) {
-            case shoeType:
-                res.send(shoes.filter(shoe => shoe.type === shoeType))
-                break
-            case minPrice:
-                res.send(shoes.filter(shoe => shoe.price >= minPrice))
-                break
-            case maxPrice:
-                res.send(shoes.filter(shoe => shoe.price <= maxPrice))
-                break
-        }
-    }
+    res.send(results)
 })
